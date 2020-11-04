@@ -12,11 +12,7 @@
     />
 
     <!--===============================================================================================-->
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="vendor/bootstrap/css/bootstrap.min.css"
-    />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <!--===============================================================================================-->
     <link
       rel="stylesheet"
@@ -56,6 +52,7 @@
         </div>
       </div>
 
+      <!-- begin NAVS -->
       <div class="row">
         <div class="col-2">
           <div
@@ -110,7 +107,7 @@
                   <h1 class="m-0">Dashboard</h1>
                 </div>
               </div>
-
+    
               <!-- CONTENT -->
               <section class="content">
                 <div class="container-fluid">
@@ -170,7 +167,7 @@
                       </div>
                     </div>
                   
-
+    
                     <!-- COL 3 -->
                     <div class="col-4 content__item">
                       <div
@@ -193,9 +190,7 @@
                         data-toggle="pill"
                         role= "tab"
                           href="#v-pills-settings"
-                          aria-controls = "v-pills-settings"
-                          aria-selected="false"
-                          aria-expanded="false"
+                          aria-controls = "v-pills-settings"                         
                           style="text-decoration: none"
                           class="small_box_footer nav-link"
                         >
@@ -204,15 +199,15 @@
                         </a>
                       </div>
                     </div>
-
+    
           </section>
-
+    
           <!-- CHART -->
           <section class="chart">
             <canvas id="myChart" width="400" height="200"></canvas>
           </section>
           </div>
-
+    
             <!-- Trang Posts -->
             <div
               class="tab-pane fade"
@@ -220,9 +215,25 @@
               role="tabpanel"
               aria-labelledby="v-pills-profile-tab"
             >
-              abc
-            </div>            
-
+            <!-- Đang xử lý -->
+    
+    
+            <nav>
+              <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <a class="nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Home</a>
+                <a class="nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
+                <a class="nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</a>
+              </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+              <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">abc</div>
+              <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">...</div>
+              <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">...</div>
+            </div>
+          
+            <!-- Hết Trang Post -->
+            </div>                              
+             
             <!-- Trang Freelancer -->
             <div
               class="tab-pane fade"
@@ -243,7 +254,7 @@
                   <i class="fa fa-search"></i>
                 </div>
               </div>
-
+    
               <table class="table table-striped table-hover">
                 <thead class="thead-dark">
                   <tr>
@@ -263,6 +274,8 @@
           </div>
         </div>
       </div>
+
+      <!-- end NAVS -->
     </div>
 
     <button
@@ -409,11 +422,9 @@
     </div>
   </div>
 
-    <!--===============================================================================================-->
-    <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
-    <!--===============================================================================================-->
-    <script src="vendor/bootstrap/js/popper.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <!--===============================================================================================-->
     <script src="vendor/select2/select2.min.js"></script>
     <!--===============================================================================================-->
