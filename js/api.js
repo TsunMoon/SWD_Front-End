@@ -5,6 +5,15 @@ const LOGIN = API + "/api/users/loginAdmin";
 const GET_TOTAL = API + "/api/users/totalPostAndUser";
 const GET_LIST_FREELANCER = API + "/api/users/listFreelancer";
 
+const GET_ALL_POST = "https://localhost:44321/api/posts";
+const GET_ALL_COMPANY = "https://localhost:44321/api/users/listCompany";
+
+const GET_POST_REQUEST_BY_USERNAME = "https://localhost:44321/api/UsersHavingPosts/requestedPosts";
+const GET_POST_ACCEPTED_BY_USERNAME = "https://localhost:44321/api/UsersHavingPosts/acceptedPosts";
+
+const BLOCK_UNBLOCK = "https://localhost:44321/api/users/status";
+
+
 const axiosClient = axios.create({
   baseURL: API,
 });
@@ -63,13 +72,89 @@ const getTotalDashBoard = (cb) => {
 
 
 //Trả về danh sách các 
-const getFreelancer = () => {
+const getFreelancer = (cb) => {
   axiosClient({
     method: "GET",
     url: GET_LIST_FREELANCER,
   }).then((result) => {
-    localStorage.setItem("listFreelacer",JSON.stringify(result.data));
+    localStorage.setItem("listFreelancer",JSON.stringify(result.data));
+    cb(result.data);
   }).catch((error) => {
     console.log(error);
   })
 };
+
+//Hàm get all bài POST
+const getAllPost = (cb) => {
+  axiosClient({
+    method: "GET",
+    url: GET_ALL_POST
+  }).then((result) => {
+    localStorage.setItem("listPost",result.data);
+    cb(result.data);
+  }).catch((error) => console.log(error))
+}
+
+// Trả về danh sách các Company
+const getAllCompany = (cb) => {
+  axiosClient({
+    method: "GET",
+    url: GET_ALL_COMPANY
+  }).then((result)=>{
+    localStorage.setItem("listCompany",JSON.stringify(result.data));
+    cb(result.data);
+
+  }).catch((error) => console.log(error));
+}
+
+
+// Lấy các post đã request theo username
+const getRequestPostByUsername = (username, cb) => {  
+  axiosClient({
+    method: "POST",
+    url: GET_POST_REQUEST_BY_USERNAME,
+    data:{
+      "username" : username
+    }
+  }).then((result) => {
+    if(result.status === 204){
+      document.getElementById("btnRegisterPost").disabled = true;
+    }else {
+      console.log(result);
+      document.getElementById("btnRegisterPost").disabled = false;
+      cb(result.data);
+    }  
+  }).catch((error) => console.log(error));
+};
+
+// Lấy các post đã accepted theo username
+const getAcceptedPostByUsername = (username, cb) => {
+  axiosClient({
+    method: "POST",
+    url: GET_POST_ACCEPTED_BY_USERNAME,
+    data:{
+      "username" : username
+    }
+  }).then((result) => {
+    if(result.status === 204){
+      document.getElementById("btnAcceptedPost").disabled = true;
+    }else{
+      document.getElementById("btnAcceptedPost").disabled = false;
+      cb(result.data);
+    }
+  })
+}
+
+// Block hay unblock username
+const blockOrUnblock = (username, cb) => {
+    axiosClient({
+      method: "PUT",
+      url: BLOCK_UNBLOCK,
+      data: {
+        "username" : username
+      }
+    }).then((result) => {
+      getFreelancer(cb);
+    }).catch((error) => console.log(error));
+}
+

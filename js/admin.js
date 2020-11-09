@@ -77,29 +77,13 @@ const clickMoreInfo = () => {
 };
 
 // Hiển thị freelancer
-const getFreelancerFromLocal = () => {
-  let listFromLocal = JSON.parse(localStorage.getItem("listFreelacer"));
-
-  if (!listFromLocal) return;
-
-  listFreelancer = listFromLocal.map((item) => {
-    let newFreelancer = new Freelancer(
-      item.username,
-      item.roleId,
-      item.amount,
-      item.fullname,
-      item.rating,
-      item.avatar,
-      item.status
-    );
-    return newFreelancer;
-  });
-
-  renderFreelancer(listFreelancer);
+const getFreelancerFromLocal = (strListLocal) => {
+  let listFromLocal = JSON.parse(localStorage.getItem(strListLocal));
+ 
 };
 
 //In list Freelancer
-const renderFreelancer = (listObject) => {
+const renderFreelancer = (listObject, strTableId, nameTab) => {
   var tempStr = "";
 
   for (let i = 0; i < listObject.length; i++) {
@@ -125,9 +109,7 @@ const renderFreelancer = (listObject) => {
     }
     
     <td>
-    <button  onclick="openDetail('${
-      currentFreelencer.username
-    }')" class="btn btn-info">
+    <button  onclick="openDetail('${currentFreelencer.username}','${nameTab}')" class="btn btn-info">
         <i class="fa fa-edit"></i>
       </button>
       ${
@@ -135,7 +117,7 @@ const renderFreelancer = (listObject) => {
           ? `<button onClick="clickBan('${currentFreelencer.username}')" class="btn btn-danger" >
       <i class="fa fa-ban"></i>
     </button>`
-          : `<button onClick="clickNotBan('${currentFreelencer.username}')" class="btn btn-success" >
+          : `<button onClick="clickBan('${currentFreelencer.username}')" class="btn btn-success" >
     <i class="fa fa-check"></i>
   </button>`
       }
@@ -145,8 +127,11 @@ const renderFreelancer = (listObject) => {
   </tr>`;
   }
 
-  document.getElementById("table__body").innerHTML = tempStr;
+  document.getElementById(strTableId).innerHTML = tempStr;
 };
+
+
+
 
 //khi click vào nút ban
 const clickBan = (username) => { 
@@ -158,7 +143,27 @@ const clickBan = (username) => {
           text: 'Confirm',
           btnClass: 'btn-red',
           action:() => {
-            alert("Bay màu");
+            blockOrUnblock(username, () => {
+              getFreelancer((data) => {
+                if (!data) return;
+            
+                listFreelancer = data.map((item) => {
+                  let newFreelancer = new Freelancer(
+                    item.username,
+                    item.roleId,
+                    item.amount,
+                    item.fullname,
+                    item.rating,
+                    item.avatar,
+                    item.status
+                  );
+                  return newFreelancer;
+                });
+              
+                renderFreelancer(listFreelancer,"table__body","freelancer");
+            
+              });
+            })
           }
         },
         cancel:{
@@ -172,30 +177,7 @@ const clickBan = (username) => {
 });             
 };
 
-//khi click vào nút mở ban
-const clickNotBan = (username) => {
-  console.log("mở", username);
-  $.confirm({
-    title: 'Mở block người này!',
-    content: 'Người này sẽ hoạt động bình thường được',
-    buttons: {
-        confirm:{
-          text: 'Confirm',
-          btnClass: 'btn-blue',
-          action:() => {
-            alert("Bay màu");
-          }
-        },
-        cancel:{
-          text: 'Cancel',
-          btnClass: 'btn-red',
-          action:() => {
-            alert("Hên quá cancel rồi");
-          }
-        },  
-    }
-});   
-}
+
 
 //Hàm search theo username 
 const searchFreelancer = () => {
@@ -206,12 +188,12 @@ const searchFreelancer = () => {
   for(let i = 0; i < listFreelancer.length; i++){
     let currentFreelancer = listFreelancer[i];
 
-    if(currentFreelancer.username.trim().indexOf(keyword) !== -1){
+    if(currentFreelancer.username.toLowerCase().trim().indexOf(keyword) !== -1){
       listSearchFreelancer.push(currentFreelancer);
     }    
   }
   
-  renderFreelancer(listSearchFreelancer);
+  renderFreelancer(listSearchFreelancer,"table__body","freelancer");
 
 }
 
@@ -224,39 +206,102 @@ const runApp = async () => {
   });
   
 
-  getFreelancer();
-  getFreelancerFromLocal();
+  getFreelancer((data) => {
+    if (!data) return;
+
+    listFreelancer = data.map((item) => {
+      let newFreelancer = new Freelancer(
+        item.username,
+        item.roleId,
+        item.amount,
+        item.fullname,
+        item.rating,
+        item.avatar,
+        item.status
+      );
+      return newFreelancer;
+    });
+  
+    renderFreelancer(listFreelancer,"table__body","freelancer");
+
+  });
+  getFreelancerFromLocal('listFreelancer');
 }
 
 runApp();
 
 
 //Nhấn chi tiết
-const openDetail = (username) => {
-  document.getElementById("btnOpenDetail").click();
+const openDetail = (username, nametab) => {
+  
 
-  let newFreelancer = getUserbyUsername(username);
+  let newFreelancer;
+  if(nametab === "freelancer"){
+     newFreelancer = getUserbyUsername(username, listFreelancer);
+     document.getElementById("btnOpenDetail").click();
+  }else{
+    
+    
+    document.getElementById("btnOpenDetailCompany").click();
+    let listCompany = JSON.parse(localStorage.getItem("listCompany")).map((item) => {
+      let newFreelancer = new Freelancer(
+        item.username,
+        item.roleId,
+        item.amount,
+        item.fullname,
+        item.rating,
+        item.avatar,
+        item.status
+      );
+      return newFreelancer;
+    });
+
+    newFreelancer = getUserbyUsername(username, listCompany);
+  }
+
+ 
 
   if (newFreelancer !== -1) {
-    console.log(newFreelancer);
-    document.getElementById("detail__img_id").src = newFreelancer.avatar;
-    document.getElementById("detail__fullname").innerHTML =
-      newFreelancer.fullname;
-     document.getElementById("detail__email").innerHTML = newFreelancer.username;
-    document.getElementById(
-      "detail__rating"
-    ).innerHTML = newFreelancer.checkRating();
-    document.getElementById(
-      "detail__role"
-    ).innerHTML = newFreelancer.checkRole();
-    document.getElementById("detail__amount").innerHTML = newFreelancer.amount;
+
+    if(nametab === "freelancer"){
+      console.log(newFreelancer);
+      document.getElementById("detail__img_id").src = newFreelancer.avatar;
+      document.getElementById("detail__fullname").innerHTML =
+        newFreelancer.fullname;
+       document.getElementById("detail__email").innerHTML = newFreelancer.username;
+      document.getElementById(
+        "detail__rating"
+      ).innerHTML = newFreelancer.checkRating();
+      document.getElementById(
+        "detail__role"
+      ).innerHTML = newFreelancer.checkRole();
+      document.getElementById("detail__amount").innerHTML = newFreelancer.amount;   
+      document.getElementById("btnRegisterPost").onclick = detailRequestPost(newFreelancer.username);
+      document.getElementById("btnAcceptedPost").onclick = detailAcceptedPost(newFreelancer.username);
+    }else{
+      document.getElementById("detail__img_id_company").src = newFreelancer.avatar;
+      document.getElementById("detail__fullname_company").innerHTML =
+        newFreelancer.fullname;
+       document.getElementById("detail__email_company").innerHTML = newFreelancer.username;
+      document.getElementById(
+        "detail__rating_company"
+      ).innerHTML = newFreelancer.checkRating();
+      document.getElementById(
+        "detail__role_company"
+      ).innerHTML = newFreelancer.checkRole();
+      document.getElementById("detail__amount_company").innerHTML = newFreelancer.amount;  
+    }
+    
+    
+   
+
   }
 };
 
 // Lấy User by username
-const getUserbyUsername = (username) => {
-  for (let i = 0; i < listFreelancer.length; i++) {
-    let currentUser = listFreelancer[i];
+const getUserbyUsername = (username, listToSort) => {
+  for (let i = 0; i < listToSort.length; i++) {
+    let currentUser = listToSort[i];
     if (username === currentUser.username) {
       return currentUser;
     }
@@ -269,4 +314,288 @@ const getUserbyUsername = (username) => {
 const logout = () => {
   window.location.href = "index.html";
   localStorage.clear();
+}
+
+
+
+// HÀM POST
+
+const loadPost = () => {
+  getAllPost(function(data){
+
+
+    renderPostWriter(filterPostType(data,"Writer"),1, "#writterModal");
+    renderPostWriter(filterPostType(data,"Design"),2,"#designModal");
+    renderPostWriter(filterPostType(data,"Translate"),3,"#translateModal");
+
+    
+  });
+};
+
+loadPost();
+
+//Hiển thị Writer
+const renderPostWriter = (listPost, indexType, idModal) => {
+
+  var strTemp = "";
+
+  for(var current of listPost){
+    strTemp += `
+    <div style="margin-top: 20px;" class="card ">
+    <div class="card-header bg-dark text-white ">   
+      <div class="row">
+        <div style="color: yellow;" class="col-9">
+          <span>#Keyword</span>
+          <span>#Keyword</span>
+          <span>#Keyword</span>
+        </div>
+        <div style="color: tomato; font-size: 20px;" class="col-3">Amount: <span>${current.amount}</span></div>
+      </div>                
+      
+    </div>
+    <div class="card-body bg-secondary text-center">
+      <h5 class="card-title">${current.title}</h5>
+      <p class="card-text">${current.description 
+        ? 
+        ( current.description.length > 60  ? current.description.replace(current.description.slice(60,current.description.length),"...")  : current.description )
+        : 
+        "Không có mô tả" }</p>
+      <button onclick="showInDetailDescription('${current.description}',${indexType})" id="btnOpenModal" class="btn btn-success" data-toggle="modal" data-target=${idModal}>Detail Description</button>
+      
+    </div>
+    <div style="color: white;" class="card-footer bg-info text-center ">
+     ${current.createdDate.slice(11,13)+":"+current.createdDate.slice(14,16) +"  "+current.createdDate.slice(8,10) +"/"+current.createdDate.slice(5,7) +"/"+current.createdDate.slice(0,4)}     
+    </div>
+  </div>
+    `
+  }
+  if(indexType === 1){
+    document.getElementById("show_list_writer").innerHTML = strTemp;
+   // document.getElementById("btnOpenModal").setAttribute("data-target","#writterModal")
+  }else if(indexType === 2){
+    document.getElementById("show_list_design").innerHTML = strTemp;
+  //  document.getElementById("btnOpenModal").setAttribute("data-target","#designModal")
+  }else if(indexType === 3){
+    document.getElementById("show_list_translate").innerHTML = strTemp;
+  //  document.getElementById("btnOpenModal").setAttribute("data-target","#translateModal")
+  }
+}
+
+
+
+
+// Lọc ra các bài Post có postType là
+const filterPostType = (listPost, postType) => {
+  var listAfterFilter = [];
+    for(var currentPost of listPost){
+      if(currentPost.postType === postType){
+        listAfterFilter.push(currentPost);
+      }
+    }
+    localStorage.setItem(postType,JSON.stringify(listAfterFilter));
+    return listAfterFilter;
+}
+
+//Hiện thị description trong tab DetailDescription
+const showInDetailDescription = (desc, indexType) => {  
+  if(desc !== "null"){
+    
+    if(indexType === 1){
+      document.getElementById("modal_detail_writer").innerHTML = desc;
+    }else if(indexType === 2){
+      document.getElementById("modal_detail_design").innerHTML = desc;
+    }else if(indexType === 3){
+      document.getElementById("modal_detail_translate").innerHTML = desc;
+    }
+
+  }else{    
+    if(indexType === 1){
+      document.getElementById("modal_detail_writer").innerHTML = "Không có mô tả";
+    }else if(indexType === 2){     
+      document.getElementById("modal_detail_design").innerHTML = "Không có mô tả";
+    }else if(indexType === 3){
+      document.getElementById("modal_detail_translate").innerHTML = "Không có mô tả";
+    }
+  }
+    
+}
+
+
+getAllCompany((data) => {
+  var listCompany = data.map((item) => {
+    let newFreelancer = new Freelancer(
+      item.username,
+      item.roleId,
+      item.amount,
+      item.fullname,
+      item.rating,
+      item.avatar,
+      item.status
+    )
+
+    return newFreelancer
+  });
+
+document.getElementById("inpSearchCompany").oninput = () => searchByKeyword(listCompany,"inpSearchCompany","table__body_company","company");
+// searchByKeyword(listCompany,"inpSearchCompany","table__body_company")
+  renderFreelancer(listCompany, "table__body_company","company");
+});
+
+
+// Search 
+const searchByKeyword = (listSearch, inpId, tableBodyId, nameTab) => {  
+  if(!listSearch) return;
+  var listSearchResponse = [];
+  let keyword = document.getElementById(inpId).value.trim().toLowerCase();
+
+  for(let i = 0; i < listSearch.length; i++){
+    let current = listSearch[i];
+
+    if(current.fullname.trim().toLowerCase().indexOf(keyword) !== -1){
+      listSearchResponse.push(current);
+    }    
+  }
+  
+  renderFreelancer(listSearchResponse,tableBodyId,nameTab);
+
+}
+
+
+// Xem số các bài post đã reuqest theo username
+const detailRequestPost = (username) => {  
+  getRequestPostByUsername(username, (data) => {
+
+    if(!data)  return;
+
+    strTemp = "";
+    for(let current of data){
+      strTemp += `
+      <div style="margin-top: 20px;" class="card ">
+      <div class="card-header bg-dark text-white ">   
+        <div class="row">
+          <div style="color: yellow;" class="col-9">
+            <span>#Keyword</span>
+            <span>#Keyword</span>
+            <span>#Keyword</span>
+          </div>
+          <div style="color: tomato; font-size: 20px;" class="col-3">Amount: <span>${current.amount}</span></div>
+        </div>                
+        
+      </div>
+      <div class="card-body bg-secondary text-center">
+        <h5 class="card-title">${current.title}</h5>
+        <p class="card-text">${current.description 
+          ? 
+          ( current.description.length > 60  ? current.description.replace(current.description.slice(60,current.description.length),"...")  : current.description )
+          : 
+          "Không có mô tả" }</p>
+        
+      </div>
+      <div style="color: white;" class="card-footer bg-info text-center ">
+       ${current.createdDate.slice(11,13)+":"+current.createdDate.slice(14,16) +"  "+current.createdDate.slice(8,10) +"/"+current.createdDate.slice(5,7) +"/"+current.createdDate.slice(0,4)}     
+      </div>
+    </div>
+      `
+    }
+
+
+      document.getElementById("modal_request_post").innerHTML = strTemp;
+  });
+} 
+
+//Xem các bài post đã accepted theo username
+const detailAcceptedPost = (username) => {
+
+  console.log(username);
+  getAcceptedPostByUsername(username, (data) => {
+
+    if(!data) return;
+    strTemp = "";
+    for(let current of data){
+      strTemp += `
+      <div style="margin-top: 20px;" class="card ">
+      <div class="card-header bg-dark text-white ">   
+        <div class="row">
+          <div style="color: yellow;" class="col-9">
+            <span>#Keyword</span>
+            <span>#Keyword</span>
+            <span>#Keyword</span>
+          </div>
+          <div style="color: tomato; font-size: 20px;" class="col-3">Amount: <span>${current.amount}</span></div>
+        </div>                
+        
+      </div>
+      <div class="card-body bg-secondary text-center">
+        <h5 class="card-title">${current.title}</h5>
+        <p class="card-text">${current.description 
+          ? 
+          ( current.description.length > 60  ? current.description.replace(current.description.slice(60,current.description.length),"...")  : current.description )
+          : 
+          "Không có mô tả" }</p>
+        
+      </div>
+      <div style="color: white;" class="card-footer bg-info text-center ">
+       ${current.createdDate.slice(11,13)+":"+current.createdDate.slice(14,16) +"  "+current.createdDate.slice(8,10) +"/"+current.createdDate.slice(5,7) +"/"+current.createdDate.slice(0,4)}     
+      </div>
+    </div>
+      `
+    }
+
+    document.getElementById("modal_accepted_post").innerHTML = strTemp;
+
+  });
+
+}
+
+//search post writer theo title
+const searchWriter = () => {
+  let keyword = document.getElementById("inpSearchPostWriter").value.trim().toLowerCase();  
+
+  let listAfterSearch = [];
+
+  let listSearch = JSON.parse(localStorage.getItem("Writer"));
+  for(currentPost of listSearch){
+    if(currentPost.title.trim().toLowerCase().indexOf(keyword) !== -1){
+      listAfterSearch.push(currentPost);
+    }
+  }
+
+  renderPostWriter(listAfterSearch,1, "#writterModal");
+
+}
+
+//search post design theo title
+const searchDesign = () => {
+  let keyword = document.getElementById("inpSearchPostDesign").value.trim().toLowerCase();  
+
+  let listAfterSearch = [];
+
+  let listSearch = JSON.parse(localStorage.getItem("Design"));
+  for(currentPost of listSearch){
+    console.log(currentPost.title.trim().toLowerCase());
+    if(currentPost.title.trim().toLowerCase().indexOf(keyword) !== -1){
+      listAfterSearch.push(currentPost);
+    }
+  }
+
+  renderPostWriter(listAfterSearch,2, "#designModal");
+
+}
+
+//search post translate theo title
+const searchTranslate = () => {
+  let keyword = document.getElementById("inpSearchPostTranslate").value.trim().toLowerCase();  
+
+  let listAfterSearch = [];
+
+  let listSearch = JSON.parse(localStorage.getItem("Translate"));
+  for(currentPost of listSearch){
+    console.log(currentPost.title.trim().toLowerCase());
+    if(currentPost.title.trim().toLowerCase().indexOf(keyword) !== -1){
+      listAfterSearch.push(currentPost);
+    }
+  }
+
+  renderPostWriter(listAfterSearch,3, "#translateModal");
+
 }
