@@ -215,9 +215,25 @@
           </section>
     
           <!-- CHART -->
-          <section class="chart">
-            <canvas id="myChart" width="400" height="200"></canvas>
-          </section>
+          <div style="display: flex; margin-top: 40px;" class="row">
+            <div  class="col-8">
+              <h3  style="margin-left: 180px;">Số bài Post theo tháng</h3>
+              <iframe height="400" class="col-12" src="https://datastudio.google.com/embed/reporting/ff13f9c3-a5fd-4248-970b-d046999aba5b/page/bvioB" frameborder="0" style="border:0" allowfullscreen></iframe>
+              
+            </div>
+            <div  class="col-4">
+              <h3 style="margin-left: 60px;">Tỉ lệ các bài Post</h3>
+              <iframe height="400" class="col-12" src="https://datastudio.google.com/embed/reporting/61b3f01e-aa85-4d13-b18c-725ff49cf798/page/s4qoB" frameborder="0" style="border:0" allowfullscreen></iframe>
+             </div>
+          </div>
+         
+          <div style="padding-left: 240px; margin-top: 30px;">
+            <h3 style="margin-left: 135px;">Số Giao Dịch theo tháng</h3>
+            <iframe width="600" height="334" src="https://datastudio.google.com/embed/reporting/ff13f9c3-a5fd-4248-970b-d046999aba5b/page/5zqoB" frameborder="0" style="border:0" allowfullscreen></iframe>
+          </div>
+        
+
+
           </div>
     
             <!-- Trang Posts -->
@@ -402,6 +418,7 @@
                     
                   </tbody>
                 </table>
+                                          
               </div>
             </div>
              
@@ -441,6 +458,32 @@
                   
                 </tbody>
               </table>
+
+                <!-- PHÂN TRANG -->
+                <div class="content__paging">
+                  <div class="page">
+                      <ul>                          
+                          <div class="number-page" id="number-page">                            
+                          </div>                       
+                      </ul>
+                  </div>
+                  <div class="page-config">
+                      <label for="">Item per page: </label>
+                      <select onchange="changeSelected(value)" name="" id="mySelect">
+                          <option value="5" selected>5</option>
+                          <option value="10">10</option>                          
+                      </select>
+                  </div>
+                  <div >
+                    <span>Tổng số trang : </span>
+                    <span style="font-size: 20px; font-weight: bold;" id="total-page"></span>
+                  </div>
+                  <div >
+                    <span>Tổng số sản phẩm : </span>
+                    <span style="font-size: 20px; font-weight: bold;" id="total-item"></span>
+                  </div>
+              </div>
+
             </div>
           </div>
         </div>

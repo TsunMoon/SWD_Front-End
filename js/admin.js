@@ -1,5 +1,8 @@
 var listFreelancer = [];
 
+var itemEachPage = 0;
+var totalPage = 0;
+
 // ===========  DASHBOARD ==============
 const loadAdminProfile = () => {
   let objectAdmin = JSON.parse(localStorage.getItem("objectAdmin"));
@@ -7,50 +10,7 @@ const loadAdminProfile = () => {
   document.getElementById("admin_name").innerHTML = objectAdmin.fullname;
 };
 
-//vẽ chart
-const createChart = () => {
-  var ctx = document.getElementById("myChart").getContext("2d");
-  var myChart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-      datasets: [
-        {
-          label: "# of Votes",
-          data: [12, 19, 3, 5, 2, 3],
-          backgroundColor: [
-            "rgba(255, 99, 132, 0.2)",
-            "rgba(54, 162, 235, 0.2)",
-            "rgba(255, 206, 86, 0.2)",
-            "rgba(75, 192, 192, 0.2)",
-            "rgba(153, 102, 255, 0.2)",
-            "rgba(255, 159, 64, 0.2)",
-          ],
-          borderColor: [
-            "rgba(255, 99, 132, 1)",
-            "rgba(54, 162, 235, 1)",
-            "rgba(255, 206, 86, 1)",
-            "rgba(75, 192, 192, 1)",
-            "rgba(153, 102, 255, 1)",
-            "rgba(255, 159, 64, 1)",
-          ],
-          borderWidth: 1,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: true,
-            },
-          },
-        ],
-      },
-    },
-  });
-};
+
 
 //load tổng số post, company và freelancer
 const loadTotal = () => {
@@ -135,9 +95,10 @@ const renderFreelancer = (listObject, strTableId, nameTab) => {
 
 //khi click vào nút ban
 const clickBan = (username) => { 
+  
   $.confirm({
-    title: 'Block người này!',
-    content: 'Người này sẽ không đăng nhập được nữa',
+    title: 'Xác nhận thao tác này',
+    content: 'Block or unblock',
     buttons: {
         confirm:{
           text: 'Confirm',
@@ -162,6 +123,15 @@ const clickBan = (username) => {
               
                 renderFreelancer(listFreelancer,"table__body","freelancer");
             
+              },(data)=> {
+
+                itemEachPage =  document.getElementById("mySelect").value;
+                //render ra các nút      
+                totalPage = returnPage(data.length,itemEachPage);
+                document.getElementById("total-item").innerHTML = listFreelancer.length;
+                document.getElementById("total-page").innerHTML = totalPage;
+                renderListPage(totalPage);
+                clickToRender(1);
               });
             })
           }
@@ -170,7 +140,7 @@ const clickBan = (username) => {
           text: 'Cancel',
           btnClass: 'btn-blue',
           action:() => {
-            alert("Hên quá cancel rồi");
+           
           }
         },  
     }
@@ -192,14 +162,23 @@ const searchFreelancer = () => {
       listSearchFreelancer.push(currentFreelancer);
     }    
   }
+console.log(listSearchFreelancer);
+  if(listSearchFreelancer.length === listFreelancer.length){
+    console.log("Yui");
+    totalPage = returnPage(listFreelancer.length,itemEachPage);
+  document.getElementById("total-page").innerHTML = totalPage;
+  renderListPage(totalPage);
+  clickToRender(1);
+  }
+  else{
+    renderFreelancer(listSearchFreelancer,"table__body","freelancer");
+  }
   
-  renderFreelancer(listSearchFreelancer,"table__body","freelancer");
 
 }
 
 const runApp = async () => {
  await loadAdminProfile();
- await createChart();
   getTotalDashBoard(function(data){
     console.log(data);
     loadTotal();
@@ -222,8 +201,19 @@ const runApp = async () => {
       return newFreelancer;
     });
   
-    renderFreelancer(listFreelancer,"table__body","freelancer");
+    // renderFreelancer(listFreelancer,"table__body","freelancer");
 
+  }, 
+  (data) => {
+      //Viết hàm phân trang vào đây
+
+    itemEachPage =  document.getElementById("mySelect").value;
+     //render ra các nút      
+     totalPage = returnPage(data.length,itemEachPage);
+     document.getElementById("total-item").innerHTML = listFreelancer.length;
+     document.getElementById("total-page").innerHTML = totalPage;
+     renderListPage(totalPage);
+     clickToRender(1);
   });
   getFreelancerFromLocal('listFreelancer');
 }
@@ -599,3 +589,95 @@ const searchTranslate = () => {
   renderPostWriter(listAfterSearch,3, "#translateModal");
 
 }
+
+
+var start = 0 ;
+var end = 0;
+
+
+
+// Thuật toán trả về số trang
+const returnPage = (listLength, itemEachPage) => {
+
+  if(listLength % itemEachPage === 0 ){
+    return listLength / itemEachPage;
+}
+
+for(let i = 0 ; i < itemEachPage ; i++){
+    if((listLength - i) % itemEachPage === 0){
+        return ((listLength - i) / itemEachPage) + 1;
+    }
+}
+return -1;
+}
+
+//Thuật toán tính thứ tự để render ra
+const renderPageByClick = (currentPage, iteamEachPage) => {
+  if(currentPage > 0){
+    start = (currentPage - 1) * iteamEachPage;
+
+    if((currentPage * iteamEachPage) > listFreelancer.length){
+      end = listFreelancer.length;
+    }else{
+      end = currentPage * iteamEachPage;
+    }
+
+    
+  }
+}
+
+//Phân trang
+
+//Click để chuyển trang
+const clickToRender = (numberPage) => {
+
+  itemEachPage =  document.getElementById("mySelect").value;
+
+  document.getElementById("dynamic_li_"+numberPage).classList.add("active");
+  for(let i = 1 ; i <= totalPage; i++){
+    if(i !== numberPage){
+      document.getElementById("dynamic_li_"+i).classList.remove("active");
+    }
+  }
+
+  console.log("numberPage", numberPage);
+  renderPageByClick(numberPage, itemEachPage);
+  console.log("start",start);
+  console.log("end", end);
+
+  let listFreeAfterPaging = [];
+  for( let i = start ; i < end ; i++){
+    listFreeAfterPaging.push(listFreelancer[i]);
+  }  
+  if(listFreeAfterPaging){
+    renderFreelancer(listFreeAfterPaging,"table__body","freelancer");
+  }
+
+}
+
+//render ra các nút để click
+function renderListPage(totalPages) {
+  let html = '';
+  html += `<li id="dynamic_li_1" onclick="clickToRender(1)" class="current-page active"><a>${1}</a></li>`;
+  for (let i = 2; i <= totalPages; i++) {
+      html += `<li id="dynamic_li_${i}" onclick="clickToRender(${i})"><a>${i} </a></li>`;
+  }
+  if (totalPages === 0) {
+      html = ''
+  }
+  document.getElementById('number-page').innerHTML = html;
+}
+
+//Khi select option thay đổi
+const changeSelected = (value) => {
+  itemEachPage = value;
+  totalPage = returnPage(listFreelancer.length,itemEachPage);
+  document.getElementById("total-page").innerHTML = totalPage;
+  renderListPage(totalPage);
+  clickToRender(1);
+}
+
+
+
+
+

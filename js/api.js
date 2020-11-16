@@ -1,17 +1,17 @@
 
-const API = "https://thanhdeptrai.azurewebsites.net";
+const API = "https://louisnguyen.azurewebsites.net";
 
 const LOGIN = API + "/api/users/loginAdmin";
 const GET_TOTAL = API + "/api/users/totalPostAndUser";
 const GET_LIST_FREELANCER = API + "/api/users/listFreelancer";
 
-const GET_ALL_POST = "https://localhost:44321/api/posts";
-const GET_ALL_COMPANY = "https://localhost:44321/api/users/listCompany";
+const GET_ALL_POST = API + "/api/posts";
+const GET_ALL_COMPANY = API + "/api/users/listCompany";
 
-const GET_POST_REQUEST_BY_USERNAME = "https://localhost:44321/api/UsersHavingPosts/requestedPosts";
-const GET_POST_ACCEPTED_BY_USERNAME = "https://localhost:44321/api/UsersHavingPosts/acceptedPosts";
+const GET_POST_REQUEST_BY_USERNAME = API + "/api/UsersHavingPosts/requestedPosts";
+const GET_POST_ACCEPTED_BY_USERNAME = API + "/api/UsersHavingPosts/acceptedPosts";
 
-const BLOCK_UNBLOCK = "https://localhost:44321/api/users/status";
+const BLOCK_UNBLOCK = API + "/api/users/status";
 
 
 const axiosClient = axios.create({
@@ -72,13 +72,16 @@ const getTotalDashBoard = (cb) => {
 
 
 //Trả về danh sách các 
-const getFreelancer = (cb) => {
+const getFreelancer = (cb, cbPagination) => {
   axiosClient({
     method: "GET",
     url: GET_LIST_FREELANCER,
   }).then((result) => {
     localStorage.setItem("listFreelancer",JSON.stringify(result.data));
+    console.log("freelancer",result.data);    
     cb(result.data);
+    cbPagination(result.data);
+    
   }).catch((error) => {
     console.log(error);
   })
